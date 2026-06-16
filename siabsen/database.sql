@@ -13,16 +13,17 @@ CREATE TABLE users (
   password VARCHAR(255) NOT NULL,       -- plain for demo; gunakan password_hash() di produksi
   role ENUM('admin','dosen','mahasiswa') NOT NULL,
   name VARCHAR(100) NOT NULL,
+  prodi VARCHAR(100) DEFAULT NULL,   -- untuk dosen: prodi yang dia ajar
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users (id, password, role, name) VALUES
-('admin','admin123','admin','Administrator'),
-('dosen01','pass','dosen','Dr. Sari Rahayu'),
-('dosen02','pass','dosen','Prof. Budi Hartono'),
-('2021001','pass','mahasiswa','Andi Firmansyah'),
-('2021002','pass','mahasiswa','Citra Lestari'),
-('2021003','pass','mahasiswa','Dian Permata');
+INSERT INTO users (id, password, role, name, prodi) VALUES
+('admin',  'admin123','admin',    'Administrator',    NULL),
+('dosen01','pass',    'dosen',    'Dr. Sari Rahayu',   'Teknik Informatika'),
+('dosen02','pass',    'dosen',    'Prof. Budi Hartono','Sistem Informasi'),
+('2021001','pass',    'mahasiswa','Andi Firmansyah',   NULL),
+('2021002','pass',    'mahasiswa','Citra Lestari',      NULL),
+('2021003','pass',    'mahasiswa','Dian Permata',       NULL);
 
 -- ============================================
 -- MAHASISWA (data tambahan)
@@ -70,14 +71,15 @@ CREATE TABLE jadwal (
   selesai TIME NOT NULL,
   toleransi INT DEFAULT 15,    -- menit
   ruang VARCHAR(50),
+  prodi VARCHAR(100) DEFAULT NULL,
   FOREIGN KEY (dosen_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-INSERT INTO jadwal (id, mk, kode, dosen_id, hari, mulai, selesai, toleransi, ruang) VALUES
-('J1','Algoritma & Pemrograman','MK101','dosen01','Senin','08:00:00','09:40:00',15,'GD-A 101'),
-('J2','Basis Data','MK102','dosen01','Rabu','10:00:00','11:40:00',10,'GD-B 203'),
-('J3','Jaringan Komputer','MK103','dosen02','Selasa','13:00:00','14:40:00',15,'Lab NET'),
-('J4','Rekayasa Perangkat Lunak','MK104','dosen02','Kamis','08:00:00','09:40:00',20,'GD-C 301');
+INSERT INTO jadwal (id, mk, kode, dosen_id, hari, mulai, selesai, toleransi, ruang, prodi) VALUES
+('J1','Algoritma & Pemrograman',    'MK101','dosen01','Senin',  '08:00:00','09:40:00',15,'GD-A 101','Teknik Informatika'),
+('J2','Basis Data',                   'MK102','dosen01','Rabu',   '10:00:00','11:40:00',10,'GD-B 203','Teknik Informatika'),
+('J3','Jaringan Komputer',            'MK103','dosen02','Selasa', '13:00:00','14:40:00',15,'Lab NET',  'Sistem Informasi'),
+('J4','Rekayasa Perangkat Lunak',     'MK104','dosen02','Kamis',  '08:00:00','09:40:00',20,'GD-C 301','Sistem Informasi');
 
 -- ============================================
 -- MAHASISWA <-> MATA KULIAH (enrollment, opsional - jika tidak ada berarti semua mhs ikut semua MK)
@@ -91,11 +93,15 @@ CREATE TABLE enrollment (
   UNIQUE KEY uq_enroll (nim, jadwal_id)
 );
 
+-- Enrollment sesuai prodi:
+-- Teknik Informatika (2021001): J1, J2 | Sistem Informasi (2021002): J3, J4
+-- Ilmu Komputer (2021003): belum ada jadwal prodi Ilmu Komputer
+-- Mahasiswa 2021001 = Teknik Informatika -> J1, J2
+-- Mahasiswa 2021002 = Sistem Informasi   -> J3, J4
+-- Mahasiswa 2021003 = Ilmu Komputer      -> (tidak ada jadwal, sesuai prodi)
 INSERT INTO enrollment (nim, jadwal_id) VALUES
-('2021001','J1'),('2021002','J1'),('2021003','J1'),
-('2021001','J2'),('2021002','J2'),('2021003','J2'),
-('2021001','J3'),('2021002','J3'),('2021003','J3'),
-('2021001','J4'),('2021002','J4'),('2021003','J4');
+('2021001','J1'),('2021001','J2'),
+('2021002','J3'),('2021002','J4');
 
 -- ============================================
 -- ABSENSI

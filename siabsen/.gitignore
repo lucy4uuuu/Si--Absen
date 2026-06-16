@@ -1,0 +1,3 @@
+uploads/izin/*
+!uploads/izin/README.txt
+config/database.php

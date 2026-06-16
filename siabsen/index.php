@@ -19,9 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user) {
         $_SESSION['user'] = [
-            'id' => $user['id'],
-            'name' => $user['name'],
-            'role' => $user['role'],
+            'id'    => $user['id'],
+            'name'  => $user['name'],
+            'role'  => $user['role'],
+            'prodi' => $user['prodi'] ?? null,  // untuk dosen: prodi yang dia ajar
         ];
         header('Location: dashboard.php');
         exit;
